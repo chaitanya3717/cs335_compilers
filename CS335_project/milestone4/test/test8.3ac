@@ -1,0 +1,9 @@
+1,label,eat
+2,label,sleep
+3,label,eat
+4,ret,
+5,label,sleep
+6,ret,
+7,label,main
+8,=,animal,new
+9,ret,

@@ -1,0 +1,592 @@
+
+%{
+  #include <iostream>
+  #include <vector>
+  #include <string>
+  #include <fstream>
+  using namespace std;
+  extern int yylineno;
+  extern void yyerror(char const * message);
+  extern int yyparse(void);
+  extern int yylex(void);
+  extern FILE *yyin;
+  ofstream myFile;
+  int cnt=1;
+  vector<string>nodes;
+  struct node *head;
+    struct node {
+		struct node *ch1;
+		struct node *ch2;
+    struct node *ch3;
+		struct node *ch4;
+    struct node *ch5;
+		struct node *ch6;
+    struct node *ch7;
+		struct node *ch8;
+    struct node *ch9;
+    string token;
+    };
+    extern struct node* mknode(struct node *ch1, struct node *ch2, struct node *ch3,struct node *ch4,struct node *ch5,struct node *ch6,struct node *ch7,struct node *ch8,struct node *ch9,string token);
+%}
+
+ %union {
+  struct var_name {
+		  char name[100];
+		  struct node* nd;
+	    } nd_obj;
+  }
+
+
+
+%token < nd_obj > abstract assert boolean break_1 catch_1 char_1 class_1 continue_1 default_1 double_1 else_1 extends final finally float_1 for_1 if_1 implements import instanceof int_1 interface long_1 native new_1 package private_1 public_1 return_1 static_1 strictfp super synchronized this_1 throw_1 throws transient try_1 void_1 volatile_1 while_1 String
+%token < nd_obj > L_bracket R_bracket LF_bracket RF_bracket LS_bracket RS_bracket semicolon comma dot
+%token < nd_obj > addn subt mult div_1 modulo increment decrement
+%token < nd_obj > equals greaterequal lessequal notequal greaterthan lessthan
+%token < nd_obj > bitand_1 bitor_1 bitxor  leftshift rightshift urightshift  bitcomp
+%token < nd_obj > and_1 or_1 not_1
+%token < nd_obj > assignment asnaddn asnsub asnmul asndiv  asnand asnor asnxor asnmod asnls asnrs asnurs
+%token < nd_obj > questionmark colon
+%token < nd_obj > BooleanLiteral NullLiteral TextBlock
+%token < nd_obj > identifier
+%token < nd_obj > IntegerLiteral
+%token < nd_obj > FloatingPointLiteral
+%token < nd_obj > CharacterLiteral
+%token < nd_obj > StringLiteral
+
+%type < nd_obj > Goal
+%type < nd_obj > Identifier Literal
+%type < nd_obj > Type PrimitiveType NumericType IntegralType FloatingPointType
+%type < nd_obj > ReferenceType InterfaceType ClassType
+%type < nd_obj > ArrayType Dims
+%type < nd_obj > TypeName SName QName ASsignment
+%type < nd_obj > CompilationUnit PackageDeclaration_1 ImportDeclaration_1 TopLevelClassOrInterfaceDeclaration_1  PackageDeclaration TopLevelClassOrInterfaceDeclarations ImportDeclarations ImportDeclaration SingleTypeImportDeclaration TypeImportOnDemandDeclaration SingleStaticImportDeclaration StaticImportOnDemandDeclaration TopLevelClassOrInterfaceDeclaration
+%type < nd_obj > ClassModifier ClassModifiers ClassModifier_1 ClassDeclaration ClassExtends_1 ClassImplements_1  ClassImplements InterfaceTypeList
+%type < nd_obj > ClassBody ClassBodyDeclaration_1 ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclaratorList VariableDeclarator VariableDeclaratorId Dims_1 VariableInitializer VariableInitializerList_1 MethodDeclaration MethodHeader Throws_1 MethodDeclarator FormalParameterList_1 FormalParameterList FormalParameter Throws ExceptionTypeList MethodBody StaticInitializer
+%type < nd_obj > ConstructorDeclaration ConstructorDeclarator ConstructorBody ExplicitConstructorInvocation ArgumentList_1 comma_1 UnqualifiedClassInstanceCreationExpression
+%type < nd_obj > InterfaceDeclaration InterfaceExtends_1 InterfaceExtends InterfaceBody InterfaceMemberDeclaration_1 InterfaceMemberDeclaration ConstantDeclaration  InterfaceMethodDeclaration
+%type < nd_obj > Block BlockStatement_1 BlockStatement LocalVariableDeclarationStatement LocalVariableDeclaration Statement StatementNoShortIf StatementWithoutTrailingSubstatement EmptyStatement LabeledStatement LabeledStatementNoShortIf ExpressionStatement StatementExpression IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf AssertStatement WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf BasicForStatement ForInit_1 Expression_1 ForUpdate_1 BasicForStatementNoShortIf ForInit ForUpdate StatementExpressionList comma_StatementExpression EnhancedForStatement EnhancedForStatementNoShortIf BreakStatement Identifier_1 ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches_1 Catches CatchClause CatchFormalParameter CatchType bitor_ClassType Finally
+%type < nd_obj > Primary PrimaryNoNewArray ClassInstanceCreationExpression FieldAccess ArrayAccess MethodInvocation ArgumentList  ArrayCreationExpression DimExprs DimExpr Expression ArrayInitializer Assignment LeftHandSide AssignmentOperator ConditionalExpression ConditionalOrExpression ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostfixExpression PostIncrementExpression PostDecrementExpression CastExpression
+%type < nd_obj > Dot LS_Bracket RS_Bracket Package Semicolon Modulo Import Mult Static_1 Class_1 Extends Implements Comma LF_Bracket RF_Bracket Void_1 L_Bracket R_Bracket THrows This_1 Super Interface EXtends Colon If_1 Else_1 Assert While_1 For_1 Break_1 Continue_1 Return_1 Throw_1 Synchronized Try_1 Catch_1 FInally New_1 Questionmark Or_1 And_1 Bitor_1 Bitxor Bitand_1 Equals Notequal Lessthan Lessequal Greaterthan Greaterequal Instanceof Leftshift Rightshift Urightshift Addn Subt Div_1 Increment Decrement Bitcomp Not_1 IntegerLiteral_ FloatingPointLiteral_ BooleanLiteral_ CharacterLiteral_ StringLiteral_ NullLiteral_ Booolean TextBlock_
+
+%right else_1
+
+
+
+
+%start Goal
+
+%%
+
+Goal:	CompilationUnit {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Goal"); head = $$.nd;};
+Identifier: identifier {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Identifier\t("+str+")");};
+Literal: IntegerLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | FloatingPointLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | BooleanLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | CharacterLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | StringLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | TextBlock_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");}
+        | NullLiteral_ {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Literal");};
+IntegerLiteral_: IntegerLiteral {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Integer Literal\t("+str+")");};
+FloatingPointLiteral_ : FloatingPointLiteral {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Floatingpoint Literal\t("+str+")");};
+BooleanLiteral_: BooleanLiteral {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Boolean Literal\t("+str+")");};
+CharacterLiteral_: CharacterLiteral {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Character Literal\t("+str+")");};
+StringLiteral_: StringLiteral {string str1($1.name);string str = str1.substr(1, str1.length()-2);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"String Literal\t("+str+")");};
+TextBlock_: TextBlock {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Textblock\t("+str+")");};
+NullLiteral_:NullLiteral {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Null literal\t("+str+")");};
+Type: PrimitiveType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Type");}
+     | ReferenceType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Type");}
+     ;
+PrimitiveType :  NumericType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimitiveType");}
+                | Booolean {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"primitive type");};
+Booolean: boolean {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Boolean \t("+str+")");};
+
+NumericType: IntegralType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"NumericType");}
+            | FloatingPointType{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"NumericType");};
+
+IntegralType:  int_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | long_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | char_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | String {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");} ;
+
+FloatingPointType: float_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+                  | double_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");};
+ReferenceType: TypeName {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ReferenceType");}
+             | ArrayType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ReferenceType");}
+                ;
+InterfaceType : TypeName {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceType");};
+ClassType: TypeName {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassType");};
+TypeName: SName {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TypeName");}
+         | QName  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TypeName");};
+SName:Identifier {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"SName");};
+QName: TypeName Dot Identifier {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"QName");};
+Dot : dot {string str($1.name); $$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+ArrayType: PrimitiveType LS_Bracket RS_Bracket{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ArrayType");}
+     | TypeName LS_Bracket RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ArrayType");}
+     | ArrayType LS_Bracket RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ArrayType");};
+Dims:  LS_Bracket RS_Bracket {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Dims");}
+     | Dims LS_Bracket RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"Dims");};
+LS_Bracket : LS_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+RS_Bracket : RS_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+
+CompilationUnit: PackageDeclaration_1 ImportDeclaration_1 TopLevelClassOrInterfaceDeclaration_1 {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"CompilationUnit");};
+PackageDeclaration_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PackageDeclaration_1");}
+                      | PackageDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PackageDeclaration_1");};
+ImportDeclaration_1: ImportDeclarations{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration_1");}  | {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration_1");} ;
+ImportDeclarations : ImportDeclaration{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclarations");}
+                     | ImportDeclarations ImportDeclaration {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclarations");};
+TopLevelClassOrInterfaceDeclaration_1 : TopLevelClassOrInterfaceDeclarations{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclaration_1");}  | {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclaration_1");} ;
+TopLevelClassOrInterfaceDeclarations :TopLevelClassOrInterfaceDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclarations");}
+                                      | TopLevelClassOrInterfaceDeclarations TopLevelClassOrInterfaceDeclaration {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclarations");};
+PackageDeclaration: Package TypeName Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"PackageDeclaration");};
+Package: package {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keywords\t("+str+")");}
+Semicolon: semicolon {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+ImportDeclaration: SingleTypeImportDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration");}
+                 | TypeImportOnDemandDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration");}
+                 | SingleStaticImportDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration");}
+                 | StaticImportOnDemandDeclaration{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ImportDeclaration");};
+SingleTypeImportDeclaration: Import TypeName Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"SingleTypeImportDeclaration");};
+Import: import {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+TypeImportOnDemandDeclaration: Import TypeName Dot Mult Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"TypeImportOnDemandDeclaration");};
+Mult: mult {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+SingleStaticImportDeclaration: Import Static_1 TypeName Dot Identifier Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"SingleStaticImportDeclaration");};
+Static_1: static_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+StaticImportOnDemandDeclaration: Import Static_1 TypeName Dot Mult Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"StaticImportOnDemandDeclaration");};
+TopLevelClassOrInterfaceDeclaration: ClassDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclaration");}
+                                   | InterfaceDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclaration");}
+                                   | Semicolon {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"TopLevelClassOrInterfaceDeclaration");};
+
+
+ClassModifier: public_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | private_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | abstract {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | static_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | final {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | strictfp {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | synchronized {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | native {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | default_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | volatile_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+             | transient {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");};
+
+ClassModifiers: ClassModifier  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassModifiers");}
+	           	| ClassModifiers ClassModifier  {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassModifiers");}
+	           	;
+ClassModifier_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassModifier_1");}
+                | ClassModifiers {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassModifier_1");};
+ClassDeclaration: ClassModifier_1 Class_1 Identifier ClassExtends_1 ClassImplements_1 ClassBody {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"ClassDeclaration");};
+Class_1: class_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ClassExtends_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassExtends_1");}
+                | Extends ClassType {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassExtends_1");};
+Extends: extends {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ClassImplements_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassImplements_1");}
+                  | ClassImplements{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassImplements_1");};
+ClassImplements: Implements InterfaceTypeList {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassImplements");};
+Implements: implements {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+InterfaceTypeList: InterfaceType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceTypeList");}
+                 | InterfaceTypeList Comma InterfaceType {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceTypeList");};
+Comma: comma {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+
+
+ClassBody: LF_Bracket ClassBodyDeclaration_1 RF_Bracket  {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBody");};
+LF_Bracket : LF_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+RF_Bracket : RF_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+
+ClassBodyDeclaration_1: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBodyDeclaration_1");}
+                      | ClassBodyDeclaration_1 ClassBodyDeclaration {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBodyDeclaration_1");};
+ClassBodyDeclaration: ClassMemberDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBodyDeclaration");}
+                    | StaticInitializer {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBodyDeclaration");}
+                    | ConstructorDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassBodyDeclaration");};
+ClassMemberDeclaration: FieldDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassMemberDeclaration");}
+                      | MethodDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassMemberDeclaration");}
+                      | ClassDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassMemberDeclaration");}
+                      | InterfaceDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassMemberDeclaration");}
+                      | Semicolon   {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassMemberDeclaration");}  ;
+FieldDeclaration: ClassModifier_1 Type VariableDeclaratorList Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"FieldDeclaration");};
+VariableDeclaratorList: VariableDeclarator {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclaratorList");}
+                      | VariableDeclaratorList Comma VariableDeclarator {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclaratorList");};
+VariableDeclarator: VariableDeclaratorId {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclarator");}
+                  | VariableDeclaratorId ASsignment VariableInitializer{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclarator");};
+VariableDeclaratorId: Identifier {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclaratorId");}
+                     |VariableDeclaratorId LS_Bracket RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"VariableDeclaratorId");};
+Dims_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Dims");}
+       | Dims {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Dims_1");} ;
+VariableInitializer: Expression  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableInitializer");}
+                   | ArrayInitializer {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableInitializer");}
+                   ;
+MethodDeclaration: ClassModifier_1 MethodHeader MethodBody {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MethodDeclaration");};
+MethodHeader: Type MethodDeclarator Throws_1   {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MethodHeader");}
+            |Void_1 MethodDeclarator Throws_1    {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MethodHeader");};
+Void_1: void_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+
+Throws_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Throws_1");}
+         | Throws{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Throws_1");} ;
+MethodDeclarator: Identifier L_Bracket FormalParameterList_1 R_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"MethodDeclarator");}
+                | MethodDeclarator LS_Bracket RS_Bracket{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MethodDeclarator");}
+                ;
+L_Bracket : L_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+R_Bracket : R_bracket {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+
+FormalParameterList_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"FormalParameterList_1");}| FormalParameterList{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"FormalParameterList_1");};
+FormalParameterList: FormalParameter {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"FormalParameterList");}
+                   |FormalParameterList Comma FormalParameter {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"FormalParameterList");}
+                   ;
+FormalParameter:  Type VariableDeclaratorId {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"FormalParameter");};
+Throws: THrows ExceptionTypeList {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Throws");};
+THrows: throws {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ExceptionTypeList: ClassType {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ExceptionTypeList");}
+                | ExceptionTypeList Comma ClassType{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ExceptionTypeList");};
+MethodBody: Block {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"MethodBody");}
+          | Semicolon  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"MethodBody");} ;
+StaticInitializer: Static_1 Block {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StaticInitializer");};
+
+ConstructorDeclaration: ClassModifier_1 ConstructorDeclarator Throws_1 ConstructorBody {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ConstructorDeclaration");};
+ConstructorDeclarator: SName L_Bracket FormalParameterList_1 R_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ConstructorDeclarator");} ;
+ConstructorBody: LF_Bracket  RF_Bracket {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ConstructorBody");}
+               | LF_Bracket ExplicitConstructorInvocation  RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ConstructorBody");}
+                | LF_Bracket  BlockStatement_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ConstructorBody");}
+                | LF_Bracket ExplicitConstructorInvocation BlockStatement_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ConstructorBody");}
+                ;
+//ExplicitConstructorInvocation_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ExplicitConstructorInvocation_1");}| ExplicitConstructorInvocation{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ExplicitConstructorInvocation_1");} ;
+ExplicitConstructorInvocation : This_1 L_Bracket ArgumentList_1 R_Bracket Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"ExplicitConstructorInvocation");}
+                              | Super L_Bracket ArgumentList_1 R_Bracket Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"ExplicitConstructorInvocation");};
+This_1: this_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+Super: super {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ArgumentList_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ArgumentList_1");}
+               | ArgumentList {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ArgumentList_1");} ;
+comma_1: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"comma_1");}
+       | Comma {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"comma_1");};
+
+
+
+InterfaceDeclaration: ClassModifier_1 Interface Identifier InterfaceExtends_1 InterfaceBody {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"InterfaceDeclaration");};
+Interface : interface {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+InterfaceExtends_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceExtends_1");}
+                   | InterfaceExtends {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceExtends_1");};
+InterfaceExtends: EXtends InterfaceType{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceExtends");}
+                 |InterfaceExtends Comma InterfaceType{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceExtends");}
+                ;
+EXtends : extends {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+InterfaceBody: LF_Bracket InterfaceMemberDeclaration_1 RF_Bracket{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceBody");};
+InterfaceMemberDeclaration_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceMemberDeclaration_1");}
+                             | InterfaceMemberDeclaration_1 InterfaceMemberDeclaration{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceMemberDeclaration_1");};
+InterfaceMemberDeclaration: ConstantDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceMemberDeclaration");}
+                          | InterfaceMethodDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceMemberDeclaration");}
+                         ;
+ConstantDeclaration: FieldDeclaration {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ConstantDeclaration");};
+InterfaceMethodDeclaration: ClassModifier_1 MethodHeader Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"InterfaceMethodDeclaration");};
+
+
+ArrayInitializer: LF_Bracket VariableInitializerList_1 comma_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ArrayInitializer");} ;
+VariableInitializerList_1: VariableInitializer{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"VariableInitializerList_1");}
+                         | VariableInitializerList_1 Comma VariableInitializer{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"VariableInitializerList_1");};
+
+
+
+
+Block: LF_Bracket BlockStatement_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"Block");} ;
+BlockStatement_1 : BlockStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"BlockStatement_1");}
+                 | BlockStatement_1 BlockStatement {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"BlockStatement_1");}
+                 ;
+BlockStatement: LocalVariableDeclarationStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"BlockStatement");}
+              | Statement{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"BlockStatement");};
+LocalVariableDeclarationStatement: LocalVariableDeclaration Semicolon {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"LocalVariableDeclarationStatement");} ;
+LocalVariableDeclaration: Type VariableDeclaratorList {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"LocalVariableDeclaration");}
+                         ;
+Statement: StatementWithoutTrailingSubstatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");}
+         | LabeledStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");}
+         | IfThenStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");}
+         | IfThenElseStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");}
+         | WhileStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");}
+         | ForStatement{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Statement");} ;
+StatementNoShortIf: StatementWithoutTrailingSubstatement  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementNoShortIf");}
+                  | LabeledStatementNoShortIf {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementNoShortIf");}
+                  | IfThenElseStatementNoShortIf {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementNoShortIf");}
+                  | WhileStatementNoShortIf {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementNoShortIf");}
+                  | ForStatementNoShortIf{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementNoShortIf");};
+StatementWithoutTrailingSubstatement: Block {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | EmptyStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | ExpressionStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   |  AssertStatement{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   |  BreakStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | ContinueStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | ReturnStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | SynchronizedStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | ThrowStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");}
+                                   | TryStatement{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementWithoutTrailingSubstatement");} ;
+EmptyStatement: Semicolon {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"EmptyStatement");} ;
+LabeledStatement: Identifier Colon Statement {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"LabeledStatement");} ;
+Colon: colon {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Separator\t("+str+")");}
+LabeledStatementNoShortIf: Identifier Colon StatementNoShortIf {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"LabeledStatementNoShortIf");} ;
+ExpressionStatement: StatementExpression Semicolon{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ExpressionStatement");} ;
+StatementExpression: Assignment {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                   | PreIncrementExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                    | PreDecrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                    | PostIncrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                    | PostDecrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                    | MethodInvocation {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");}
+                    | ClassInstanceCreationExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpression");};
+IfThenStatement: If_1 L_Bracket Expression R_Bracket Statement {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"IfThenStatement");};
+If_1: if_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+IfThenElseStatement: If_1 L_Bracket Expression R_Bracket StatementNoShortIf Else_1 Statement{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,NULL,NULL,"IfThenElseStatement");};
+Else_1: else_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+IfThenElseStatementNoShortIf: If_1 L_Bracket Expression R_Bracket StatementNoShortIf Else_1 StatementNoShortIf{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,NULL,NULL,"IfThenElseStatementNoShortIf");};
+AssertStatement: Assert Expression Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"AssertStatement");}
+               | Assert Expression Colon Expression Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"AssertStatement");};
+Assert: assert {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+WhileStatement: While_1 L_Bracket Expression R_Bracket Statement {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"WhileStatement");};
+While_1: while_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+WhileStatementNoShortIf: While_1 L_Bracket Expression R_Bracket StatementNoShortIf {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"WhileStatementNoShortIf");};
+ForStatement: BasicForStatement {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForStatement");}
+           | EnhancedForStatement{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForStatement");};
+ForStatementNoShortIf: BasicForStatementNoShortIf {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForStatementNoShortIf");}
+                 | EnhancedForStatementNoShortIf{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForStatementNoShortIf");};
+BasicForStatement: For_1 L_Bracket ForInit_1 Semicolon Expression_1 Semicolon ForUpdate_1 R_Bracket Statement{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,$8.nd,$9.nd,"BasicForStatement");} ;
+For_1: for_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ForInit_1: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForInit_1");}
+         | ForInit {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForInit_1");};
+Expression_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Expression_1");}
+             | Expression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Expression_1");};
+ForUpdate_1 : {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForUpdate_1");}
+             | ForUpdate {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForUpdate_1 ");};
+BasicForStatementNoShortIf: For_1 L_Bracket ForInit_1 Semicolon Expression_1 Semicolon ForUpdate_1 R_Bracket StatementNoShortIf {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,$8.nd,$9.nd,"BasicForStatementNoShortIf");} ;
+ForInit: StatementExpressionList {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForInit");}
+        | LocalVariableDeclaration{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForInit");};
+ForUpdate: StatementExpressionList {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ForUpdate");};
+StatementExpressionList: StatementExpression comma_StatementExpression {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"StatementExpressionList");};
+comma_StatementExpression: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"comma_StatementExpression");}
+                         | comma_StatementExpression Comma StatementExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"comma_StatementExpression");} ;
+EnhancedForStatement: For_1 L_Bracket LocalVariableDeclaration Colon Expression R_Bracket Statement {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,NULL,NULL,"EnhancedForStatement");};
+EnhancedForStatementNoShortIf: For_1 L_Bracket LocalVariableDeclaration Colon Expression R_Bracket StatementNoShortIf {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,$7.nd,NULL,NULL,"EnhancedForStatementNoShortIf");};
+BreakStatement: Break_1 Identifier_1 Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"BreakStatement");} ;
+Break_1: break_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+Identifier_1: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Identifier_1");}
+            | Identifier{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Identifier_1");};
+ContinueStatement: Continue_1 Identifier_1 Semicolon{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ContinueStatement");} ;
+Continue_1: continue_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ReturnStatement: Return_1 Expression_1 Semicolon {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ReturnStatement");};
+Return_1: return_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+ThrowStatement: Throw_1 Expression Semicolon{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ThrowStatement");} ;
+Throw_1: throw_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+SynchronizedStatement: Synchronized L_Bracket Expression R_Bracket Block{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"SynchronizedStatement"); } ;
+Synchronized: synchronized {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+TryStatement: Try_1 Block Catches {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"TryStatement");}
+           | Try_1 Block Catches_1 Finally{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"TryStatement");} ;
+Try_1: try_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+Catches_1: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Catches_1");}
+          | Catches {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Catches_1");};
+Catches: CatchClause {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Catches");}
+       | Catches CatchClause {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Catches");};
+CatchClause: Catch_1 L_Bracket CatchFormalParameter R_Bracket Block {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"CatchClause");} ;
+Catch_1: catch_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+CatchFormalParameter: ClassModifier_1 CatchType VariableDeclaratorId {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"CatchFormalParameter");};
+CatchType: ClassType bitor_ClassType{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"CatchType");} ;
+bitor_ClassType: {$$.nd = mknode(NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"bitor_ClassType");}
+               | bitor_ClassType Bitor_1 ClassType{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"bitor_ClassType");};
+Finally: FInally Block {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Finally");} ;
+FInally: finally {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+
+
+
+Primary: PrimaryNoNewArray {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Primary");}
+        | ArrayCreationExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Primary");};
+PrimaryNoNewArray: Literal  {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | This_1 {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | L_Bracket Expression R_Bracket{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | ClassInstanceCreationExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | FieldAccess {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | ArrayAccess{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");}
+                  | MethodInvocation {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PrimaryNoNewArray");};
+ClassInstanceCreationExpression:  UnqualifiedClassInstanceCreationExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ClassInstanceCreationExpression");}
+                              ;
+UnqualifiedClassInstanceCreationExpression : New_1 TypeName L_Bracket ArgumentList_1 R_Bracket  {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"UnqualifiedClassInstanceCreationExpression");};
+
+
+New_1: new_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Keyword\t("+str+")");}
+FieldAccess: Primary Dot Identifier {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"FieldAccess");}
+            |  Super Dot Identifier {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"FieldAccess");}
+            ;
+ArrayAccess:  PrimaryNoNewArray LS_Bracket Expression RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ArrayAccess");}
+            | TypeName LS_Bracket Expression RS_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ArrayAccess");}
+            ;
+MethodInvocation: TypeName L_Bracket ArgumentList_1 R_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"MethodInvocation");}
+              | TypeName LF_Bracket ArgumentList_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"MethodInvocation");}
+              | Primary Dot Identifier L_Bracket ArgumentList_1 R_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"MethodInvocation");}
+               | Primary Dot Identifier LF_Bracket ArgumentList_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"MethodInvocation");}
+               | Super Dot Identifier L_Bracket ArgumentList_1 R_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"MethodInvocation");}
+               | Super Dot Identifier LF_Bracket ArgumentList_1 RF_Bracket {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,$6.nd,NULL,NULL,NULL,"MethodInvocation");};
+ArgumentList: Expression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ArgumentList");}
+            | ArgumentList Comma Expression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ArgumentList");} ;
+ArrayCreationExpression: New_1 PrimitiveType DimExprs Dims_1 {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ArrayCreationExpression");}
+                      | New_1 TypeName DimExprs Dims_1 {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"ArrayCreationExpression");}
+                      ;
+DimExprs: DimExpr {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"DimExprs");}
+                      | DimExprs DimExpr{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"DimExprs");};
+DimExpr:  LS_Bracket Expression RS_Bracket{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"DimExpr");};
+Expression: ConditionalExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Expression");}
+                      | Assignment{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Expression");} ;
+Assignment:LeftHandSide ASsignment Expression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"Assignment");}
+           | LeftHandSide AssignmentOperator Expression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"Assignment");};
+LeftHandSide: TypeName{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"LeftHandSide");}
+                      | FieldAccess {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"LeftHandSide");}
+                       | ArrayAccess{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"LeftHandSide");};
+ASsignment :       assignment {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");};
+AssignmentOperator:  asnmul{string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asndiv {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnmod {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnaddn {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnsub{string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnls{string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnrs {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnurs {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnand {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnxor{string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+                     | asnor{string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");} ;
+ConditionalExpression: ConditionalOrExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ConditionalExpression");}
+                  | ConditionalOrExpression Questionmark Expression Colon ConditionalExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"ConditionalExpression");} ;
+Questionmark: questionmark {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+ConditionalOrExpression: ConditionalAndExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ConditionalOrExpression");}
+                    | ConditionalOrExpression Or_1 ConditionalAndExpression {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ConditionalOrExpression");};
+Or_1: or_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+ConditionalAndExpression: InclusiveOrExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ConditionalAndExpression");}
+                  | ConditionalAndExpression And_1 InclusiveOrExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ConditionalAndExpression");};
+And_1: and_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+InclusiveOrExpression: ExclusiveOrExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"InclusiveOrExpression");}
+                 | InclusiveOrExpression Bitor_1 ExclusiveOrExpression {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"InclusiveOrExpression");};
+Bitor_1: bitor_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+ExclusiveOrExpression: AndExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ExclusiveOrExpression");}
+               | ExclusiveOrExpression Bitxor AndExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ExclusiveOrExpression");};
+Bitxor: bitxor {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+AndExpression: EqualityExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"AndExpression");}
+               | AndExpression Bitand_1 EqualityExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"AndExpression");};
+Bitand_1: bitand_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+EqualityExpression: RelationalExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"EqualityExpression");}
+                  | EqualityExpression Equals RelationalExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"EqualityExpression");}
+                  | EqualityExpression Notequal RelationalExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"EqualityExpression");};
+Equals: equals {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Notequal: notequal {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+RelationalExpression: ShiftExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");}
+                    | RelationalExpression Lessthan ShiftExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");}
+                    | RelationalExpression Greaterthan ShiftExpression {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");}
+                    | RelationalExpression Lessequal ShiftExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");}
+                    | RelationalExpression Greaterequal ShiftExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");}
+                    | RelationalExpression Instanceof ReferenceType{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"RelationalExpression");};
+Lessthan: lessthan {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Lessequal: lessequal {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Greaterthan: greaterthan {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Greaterequal: greaterequal {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Instanceof: instanceof {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+ShiftExpression: AdditiveExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"ShiftExpression");}
+               | ShiftExpression Leftshift AdditiveExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ShiftExpression");}
+               | ShiftExpression Rightshift AdditiveExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ShiftExpression");}
+               | ShiftExpression Urightshift AdditiveExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"ShiftExpression");};
+Leftshift: leftshift {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Rightshift: rightshift {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Urightshift: urightshift {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+AdditiveExpression: MultiplicativeExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"AdditiveExpression");}
+                  | AdditiveExpression Addn MultiplicativeExpression {$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"AdditiveExpression");}
+                  | AdditiveExpression Subt MultiplicativeExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"AdditiveExpression");};
+Addn: addn {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Subt: subt {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+MultiplicativeExpression: UnaryExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"MultiplicativeExpression");}
+                        | MultiplicativeExpression Mult UnaryExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MultiplicativeExpression");}
+                        | MultiplicativeExpression Div_1 UnaryExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MultiplicativeExpression");}
+                        | MultiplicativeExpression Modulo UnaryExpression{$$.nd = mknode($1.nd,$2.nd,$3.nd,NULL,NULL,NULL,NULL,NULL,NULL,"MultiplicativeExpression");};
+Modulo: modulo {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Div_1: div_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+UnaryExpression: PreIncrementExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpression");}
+               | PreDecrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpression");}
+               | Addn UnaryExpression {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpression");}
+               | Subt UnaryExpression{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpression");}
+               | UnaryExpressionNotPlusMinus{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpression");};
+PreIncrementExpression: Increment UnaryExpression {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PreIncrementExpression");};
+PreDecrementExpression: Decrement UnaryExpression{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PreDecrementExpression");};
+Increment: increment {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Decrement: decrement {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+UnaryExpressionNotPlusMinus: PostfixExpression{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpressionNotPlusMinus");}
+                           | Bitcomp UnaryExpression {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpressionNotPlusMinus");}
+                           | Not_1 UnaryExpression {$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpressionNotPlusMinus");}
+                           | CastExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"UnaryExpressionNotPlusMinus");};
+Bitcomp: bitcomp {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+Not_1: not_1 {string str($1.name);$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"Operator\t("+str+")");}
+PostfixExpression: Primary{$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostfixExpression");}
+                | TypeName {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostfixExpression");}
+                |  PostIncrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostfixExpression");}
+                |  PostDecrementExpression {$$.nd = mknode($1.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostfixExpression");} ;
+PostIncrementExpression: PostfixExpression Increment{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostIncrementExpression");};
+PostDecrementExpression: PostfixExpression Decrement{$$.nd = mknode($1.nd,$2.nd,NULL,NULL,NULL,NULL,NULL,NULL,NULL,"PostDecrementExpression");};
+CastExpression: L_Bracket PrimitiveType Dims_1 R_Bracket UnaryExpression {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"CastExpression");}
+              | L_Bracket Expression  R_Bracket UnaryExpressionNotPlusMinus {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,NULL,NULL,NULL,NULL,NULL,"CastExpression");}
+              |L_Bracket TypeName Dims R_Bracket UnaryExpressionNotPlusMinus {$$.nd = mknode($1.nd,$2.nd,$3.nd,$4.nd,$5.nd,NULL,NULL,NULL,NULL,"CastExpression");}
+              ;
+
+%%
+
+struct node* mknode(struct node *ch1, struct node *ch2 , struct node *ch3 ,struct node *ch4 ,struct node *ch5 ,struct node *ch6 ,struct node *ch7 ,struct node *ch8,struct node *ch9 ,string token) {
+	struct node *newnode = (struct node *)malloc(sizeof(struct node));
+	newnode->ch1 = ch1;
+	newnode->ch2 = ch2;
+	newnode->ch3 = ch3;
+  newnode->ch4 = ch4;
+  newnode->ch5 = ch5;
+  newnode->ch6 = ch6;
+  newnode->ch7 = ch7;
+  newnode->ch8 = ch8;
+  newnode->ch9 = ch9;
+  newnode->token = token;
+	return(newnode);
+}
+
+
+string dottt(struct node*n, int nn)
+{
+  string s = "";
+  int flag=0;
+  string a=n->token;
+  int pcount = nn;
+  nodes.push_back(a);
+  s += "\"" + to_string(pcount) + "\" [label=\"" + a + "\"];\n";
+  vector<struct node*> child;
+  child.push_back(n->ch1);
+  child.push_back(n->ch2);
+  child.push_back(n->ch3);
+  child.push_back(n->ch4);
+  child.push_back(n->ch5);
+  child.push_back(n->ch6);
+  child.push_back(n->ch7);
+  child.push_back(n->ch8);
+  child.push_back(n->ch9);
+
+  for(int i=0;i<9;i++)
+  {
+
+    if(child[i]!=NULL)
+    {
+      flag++;
+      int ccount = cnt++;
+      string b= n->token;
+      string c=child[i]->token;
+      s += "\"" + to_string(ccount) + "\" [label=\"" + c + "\"];\n";
+      s +="\""+ to_string(pcount) + "\" -> \"" + to_string(ccount) + "\";\n";                                                                                                   + "\";\n";
+      s +=dottt(child[i], ccount);
+    }
+  }
+  return s;
+}
+
+int main(int argc, char**argv)
+{
+yyin=fopen(argv[1],"r");
+  myFile.open(argv[2]);
+  myFile << "digraph {" << endl;
+  yyparse();
+  myFile << dottt(head,0) << endl;
+  myFile << "}" << endl;
+  myFile.close();
+  return 0;
+
+}
+void yyerror(char const * message)
+{
+
+    cout<<endl<<message<<" in line : "<<yylineno<<endl;
+}

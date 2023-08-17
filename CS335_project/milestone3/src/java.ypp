@@ -1,0 +1,1310 @@
+
+%{
+  #include "src/symtab.h"
+#include "java.tab.hpp"
+  #include <iostream>
+  #include<stdio.h>
+  #include <vector>
+  #include <cstring>
+  #include <sstream>
+  #include <stack>
+  #include <fstream>
+  using namespace std;
+  extern int yylineno;
+  extern void yyerror(char const * message);
+  extern int yyparse(void);
+  extern int yylex(void);
+  extern FILE *yyin;
+ 
+
+ vector<string> three_ac;
+ int lineno = 1;
+int num_temp = 0;
+int num_str = 0;
+int num_lab = 0;
+string get_tempvar(){
+	string str1 = "";
+	string str2 =  str1.append(to_string(num_temp));
+	num_temp++;
+	return str2;
+}
+
+
+string get_temp_strvar(){
+	string str1 = "";
+	string str2 =  str1.append(to_string(num_str));
+	num_str++;
+	return str2;
+}
+
+string get_label(){
+	string str1 = "";
+	string str2 =  str1.append(to_string(num_lab));
+	num_lab++;
+	return str2;
+}
+
+string str_arglist;
+
+stack <string> if_label_1;
+stack <string> if_label_2;
+
+stack <string> for_label_1;
+stack <string> for_label_3;
+stack <string> for_label_4;
+stack <string> for_label_5;
+stack <string> for_label_2;
+
+
+
+vector<string> split(const string &str1, char sym) {
+    stringstream ss(str1);
+    string item;
+    vector<string> list;
+    while (getline(ss, item, sym)) {
+        list.push_back(item);
+    }
+    return list;
+}
+
+
+stable* st1 = new stable;
+stable* st2 = new stable;
+
+table *node1_root = n1_root_table(st1);
+table *node1 = n1_table(st2,node1_root);
+
+
+%}
+
+%define parse.error verbose
+
+%code requires{
+typedef struct{
+	char *value;
+} node;
+}
+
+ %union {
+
+		  char *name;
+		  node* nd_obj;
+	
+  }
+
+
+
+%token < name > abstract boolean break_1 catch_1 char_1 class_1 continue_1 default_1 double_1 else_1 extends final finally float_1 for_1 if_1 implements import instanceof int_1 interface long_1 native new_1 package private_1 public_1 return_1 static_1 strictfp super synchronized this_1 throw_1 throws transient try_1 void_1 volatile_1 while_1 String
+%token < name > L_bracket R_bracket LF_bracket RF_bracket LS_bracket RS_bracket semicolon comma dot
+%token < name > addn subt mult div_1 modulo increment decrement
+%token < name > equals greaterequal lessequal notequal greaterthan lessthan
+%token < name > bitand_1 bitor_1 bitxor  leftshift rightshift urightshift  bitcomp
+%token < name > and_1 or_1 not_1
+%token < name > assignment asnaddn asnsub asnmul asndiv  asnand asnor asnxor asnmod asnls asnrs asnurs
+%token < name > questionmark colon
+%token < name > BooleanLiteral NullLiteral
+%token < name > identifier
+%token < name > IntegerLiteral
+%token < name > FloatingPointLiteral
+%token < name > CharacterLiteral
+%token < name > StringLiteral
+
+%type < nd_obj > Goal
+%type < nd_obj > Identifier Literal
+%type < nd_obj > Type PrimitiveType NumericType IntegralType FloatingPointType
+%type < nd_obj > ReferenceType InterfaceType ClassType
+%type < nd_obj > ArrayType Dims
+%type < nd_obj > TypeName SName QName ASsignment
+%type < nd_obj > CompilationUnit PackageDeclaration_1 ImportDeclaration_1 TopLevelClassOrInterfaceDeclaration_1  PackageDeclaration TopLevelClassOrInterfaceDeclarations ImportDeclarations ImportDeclaration SingleTypeImportDeclaration TypeImportOnDemandDeclaration SingleStaticImportDeclaration StaticImportOnDemandDeclaration TopLevelClassOrInterfaceDeclaration
+%type < nd_obj > ClassModifier ClassModifiers ClassModifier_1 ClassDeclaration ClassExtends_1 ClassImplements_1  ClassImplements InterfaceTypeList
+%type < nd_obj > ClassBody ClassBodyDeclaration_1 ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclaratorList VariableDeclarator VariableDeclaratorId Dims_1 VariableInitializer VariableInitializerList_1 MethodDeclaration MethodHeader Throws_1 MethodDeclarator FormalParameterList_1 FormalParameterList FormalParameter Throws ExceptionTypeList MethodBody StaticInitializer
+%type < nd_obj > ConstructorDeclaration ConstructorDeclarator ConstructorBody ExplicitConstructorInvocation ArgumentList_1 comma_1 UnqualifiedClassInstanceCreationExpression
+%type < nd_obj > InterfaceDeclaration InterfaceExtends_1 InterfaceExtends InterfaceBody InterfaceMemberDeclaration_1 InterfaceMemberDeclaration ConstantDeclaration  InterfaceMethodDeclaration
+%type < nd_obj > Block BlockStatement_1 BlockStatement LocalVariableDeclarationStatement LocalVariableDeclaration Statement StatementNoShortIf StatementWithoutTrailingSubstatement EmptyStatement LabeledStatement LabeledStatementNoShortIf ExpressionStatement StatementExpression IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf  WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf BasicForStatement ForInit_1 Expression_1 ForUpdate_1 BasicForStatementNoShortIf ForInit ForUpdate StatementExpressionList comma_StatementExpression BreakStatement Identifier_1 ContinueStatement ReturnStatement ThrowStatement TryStatement Catches_1 Catches CatchClause CatchFormalParameter CatchType bitor_ClassType Finally
+%type < nd_obj > Primary PrimaryNoNewArray ClassInstanceCreationExpression FieldAccess ArrayAccess MethodInvocation ArgumentList Expression ArrayInitializer Assignment LeftHandSide AssignmentOperator ConditionalExpression ConditionalOrExpression ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostfixExpression PostIncrementExpression PostDecrementExpression CastExpression
+%type < nd_obj > LS_Bracket RS_Bracket Package Semicolon Modulo Import Mult Static_1 Class_1 Extends Implements Comma LF_Bracket RF_Bracket Void_1 L_Bracket R_Bracket THrows This_1 Super Interface EXtends Colon If_1 Else_1 While_1 For_1 Break_1 Continue_1 Return_1 Throw_1  Try_1 Catch_1 FInally New_1 Questionmark Or_1 And_1 Bitor_1 Bitxor Bitand_1 Equals Notequal Lessthan Lessequal Greaterthan Greaterequal Instanceof Leftshift Rightshift Urightshift Addn Subt Div_1 Increment Decrement Bitcomp Not_1 IntegerLiteral_ FloatingPointLiteral_ BooleanLiteral_ CharacterLiteral_ StringLiteral_ NullLiteral_ Booolean
+%type <nd_obj> OPEN1 OPEN2 IFMARK1 IFMARK2 IFMARK3 IFMARK4 FMARK1 FMARK2 FMARK3 FMARK4 WMARK1 WMARK2 WMARK3
+%right else_1
+
+
+
+
+%start Goal
+
+%%
+
+Goal:	CompilationUnit 
+Identifier: identifier {(*$$).value=strdup($1);$1=(*$$).value;};
+Literal: IntegerLiteral_ {$$=$1;}
+        | FloatingPointLiteral_ {$$=$1;}
+        | BooleanLiteral_ {$$=$1;}
+        | CharacterLiteral_ {$$=$1;}
+        | StringLiteral_ {$$=$1;}
+        | NullLiteral_ {$$=$1;};
+IntegerLiteral_: IntegerLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+FloatingPointLiteral_ : FloatingPointLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+BooleanLiteral_: BooleanLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+CharacterLiteral_: CharacterLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+StringLiteral_: StringLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+NullLiteral_:NullLiteral {(*$$).value=strdup($1);$1=(*$$).value;};
+Type: PrimitiveType {$$=$1;}
+     | ReferenceType {$$=$1;}
+     ;
+PrimitiveType :  NumericType {$$=$1;}
+                | Booolean {$$=$1;};
+Booolean: boolean {(*$$).value=strdup($1);$1=(*$$).value;};
+
+NumericType: IntegralType {$$=$1;}
+            | FloatingPointType{$$=$1;};
+
+IntegralType:  int_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+             | long_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+             | char_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+             | String {(*$$).value=strdup($1);$1=(*$$).value;} ;
+
+FloatingPointType: float_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+                  | double_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+ReferenceType: TypeName {$$=$1;}
+             | ArrayType {$$=$1;}
+                ;
+InterfaceType : TypeName {$$=$1;};
+ClassType: TypeName {$$=$1;};
+TypeName: SName {$$=$1;}
+         | QName  {$$=$1;};
+SName:Identifier {$$=$1;};
+QName: TypeName dot Identifier {string str1=$1->value;str1.append(",");str1.append($3->value);(*$$).value=strdup(str1.c_str());};
+
+ArrayType: PrimitiveType LS_Bracket RS_Bracket{$$=$1;}
+     | TypeName LS_Bracket RS_Bracket {$$=$1;}
+     | ArrayType LS_Bracket RS_Bracket {$$=$1;};
+Dims:  LS_Bracket RS_Bracket 
+     | Dims LS_Bracket RS_Bracket ;
+LS_Bracket : LS_bracket {(*$$).value=strdup($1);$1=(*$$).value;};
+RS_Bracket : RS_bracket {(*$$).value=strdup($1);$1=(*$$).value;};
+
+CompilationUnit: PackageDeclaration_1 ImportDeclaration_1 TopLevelClassOrInterfaceDeclaration_1;
+PackageDeclaration_1 : {$$=NULL;}
+                      | PackageDeclaration ;
+ImportDeclaration_1: ImportDeclarations | {$$=NULL;} ;
+ImportDeclarations : ImportDeclaration
+                     | ImportDeclarations ImportDeclaration ;
+TopLevelClassOrInterfaceDeclaration_1 : TopLevelClassOrInterfaceDeclarations  | {$$=NULL;} ;
+TopLevelClassOrInterfaceDeclarations :TopLevelClassOrInterfaceDeclaration 
+                                      | TopLevelClassOrInterfaceDeclarations TopLevelClassOrInterfaceDeclaration ;
+PackageDeclaration: Package TypeName Semicolon ;
+Package: package {(*$$).value=strdup($1);$1=(*$$).value;};
+Semicolon: semicolon {(*$$).value=strdup($1);$1=(*$$).value;};
+ImportDeclaration: SingleTypeImportDeclaration 
+                 | TypeImportOnDemandDeclaration 
+                 | SingleStaticImportDeclaration                
+                 | StaticImportOnDemandDeclaration;
+SingleTypeImportDeclaration: Import TypeName Semicolon ;
+Import: import {(*$$).value=strdup($1);$1=(*$$).value;};
+TypeImportOnDemandDeclaration: Import TypeName dot Mult Semicolon ;
+Mult: mult {(*$$).value=strdup($1);$1=(*$$).value;};
+SingleStaticImportDeclaration: Import Static_1 TypeName dot Identifier Semicolon ;
+Static_1: static_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+StaticImportOnDemandDeclaration: Import Static_1 TypeName dot Mult Semicolon;
+
+TopLevelClassOrInterfaceDeclaration: ClassDeclaration 
+                                   | InterfaceDeclaration 
+                                   | Semicolon ;
+
+
+ClassModifier: public_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+             | private_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+             | abstract {(*$$).value=strdup($1);$1=(*$$).value;};
+             | static_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+             | final {(*$$).value=strdup($1);$1=(*$$).value;};
+             | strictfp {(*$$).value=strdup($1);$1=(*$$).value;};
+             | synchronized {(*$$).value=strdup($1);$1=(*$$).value;};
+             | native {(*$$).value=strdup($1);$1=(*$$).value;};
+             | default_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+             | volatile_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+             | transient {(*$$).value=strdup($1);$1=(*$$).value;};;
+
+ClassModifiers: ClassModifier 
+	           	| ClassModifiers ClassModifier  
+	           	;
+ClassModifier_1 : {$$=NULL;}
+                | ClassModifiers ;
+ClassDeclaration: ClassModifier_1 Class_1 Identifier ClassExtends_1 ClassImplements_1 ClassBody;
+Class_1: class_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+ClassExtends_1 : {$$=NULL;}
+                | Extends ClassType ;
+Extends: extends {(*$$).value=strdup($1);$1=(*$$).value;};
+ClassImplements_1 : {$$=NULL;}
+                  | ClassImplements;
+ClassImplements: Implements InterfaceTypeList ;
+Implements: implements {(*$$).value=strdup($1);$1=(*$$).value;};
+InterfaceTypeList: InterfaceType 
+                 | InterfaceTypeList Comma InterfaceType ;
+Comma: comma {(*$$).value=strdup($1);$1=(*$$).value;}
+
+
+ClassBody: LF_Bracket ClassBodyDeclaration_1 RF_Bracket ;
+LF_Bracket : LF_bracket {(*$$).value=strdup($1);$1=(*$$).value;};
+RF_Bracket : RF_bracket {(*$$).value=strdup($1);$1=(*$$).value;};
+
+ClassBodyDeclaration_1: {$$=NULL;}
+                      | ClassBodyDeclaration_1 ClassBodyDeclaration ;
+ClassBodyDeclaration: ClassMemberDeclaration 
+                    | StaticInitializer 
+                    | ConstructorDeclaration ;
+ClassMemberDeclaration: FieldDeclaration 
+                      | MethodDeclaration 
+                      | ClassDeclaration 
+                      | InterfaceDeclaration 
+                      | Semicolon     ;
+FieldDeclaration: ClassModifier_1 Type VariableDeclaratorList Semicolon ;
+VariableDeclaratorList: VariableDeclarator {$$=$1;}
+                      | VariableDeclaratorList Comma VariableDeclarator {string str1=$1->value;str1.append(",");str1.append($3->value);(*$$).value=strdup(str1.c_str());};
+VariableDeclarator: VariableDeclaratorId {$$=$1;}
+                  | VariableDeclaratorId ASsignment VariableInitializer{string temp_str = $1->value;
+		vector <string> list_1 = split(temp_str, ',');
+		string str_2 = $3->value;
+		vector <string> list2 = split(str_2, ',');
+		if(list_1.size()!= list2.size()){
+		cout<<"Error : unsimilarity between LHS and RHS"<<endl;
+		}
+		else{
+			string str_op = $2->value;
+			if(str_op=="="){
+				str_op = $2->value;
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+			else {
+				if(str_op=="+="){
+					str_op = "+";
+				}
+				else if(str_op=="*="){
+					str_op = "*";
+				}
+				else if(str_op=="-="){
+					str_op = "-";
+				}
+				else if(str_op=="/="){
+					str_op = "/";
+				}
+				else if(str_op=="%="){
+					str_op = "%";
+				}
+				
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+		}};
+VariableDeclaratorId: Identifier {$$=$1;}
+                     |VariableDeclaratorId LS_Bracket RS_Bracket {$$=$1;};
+Dims_1 : {$$=NULL;}
+       | Dims  ;
+VariableInitializer: Expression  {$$=$1;}
+                   | ArrayInitializer {$$=$1;}
+                   ;
+MethodDeclaration: ClassModifier_1 MethodHeader MethodBody {string str; str.append(to_string(lineno));str.append(",");str.append("ret");str.append(",");str.append("\n");three_ac.push_back(str);lineno++;};
+MethodHeader: Type MethodDeclarator Throws_1   {$$=$2;}
+            |Void_1 MethodDeclarator Throws_1    {$$=$2;};
+Void_1: void_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+
+Throws_1 : {$$=NULL;}
+         | Throws {$$=$1;};
+MethodDeclarator: Identifier L_Bracket FormalParameterList_1 R_Bracket {string str; str.append(to_string(lineno));str.append(",");str.append("label");str.append(",");str.append($1->value);str.append("\n");three_ac.push_back(str);lineno++;}
+                | MethodDeclarator LS_Bracket RS_Bracket{string str; str.append(to_string(lineno));str.append(",");str.append("label");str.append(",");str.append($1->value);str.append("\n");three_ac.push_back(str);lineno++;}
+                ;
+L_Bracket : L_bracket {(*$$).value=strdup($1);$1=(*$$).value;}
+R_Bracket : R_bracket {(*$$).value=strdup($1);$1=(*$$).value;}
+
+FormalParameterList_1 : {$$=NULL;}| FormalParameterList{$$=$1;};
+FormalParameterList: FormalParameter {$$=$1;}
+                   |FormalParameterList Comma FormalParameter {string str1=$1->value;str1.append(",");str1.append($3->value);(*$$).value=strdup(str1.c_str());}
+                   ;
+FormalParameter:  Type VariableDeclaratorId {$$=$2;};
+Throws: THrows ExceptionTypeList ;
+THrows: throws {(*$$).value=strdup($1);$1=(*$$).value;}
+ExceptionTypeList: ClassType 
+                | ExceptionTypeList Comma ClassType;
+MethodBody: Block 
+          | Semicolon   ;
+StaticInitializer: Static_1 Block ;
+
+ConstructorDeclaration: ClassModifier_1 ConstructorDeclarator Throws_1 ConstructorBody ;
+ConstructorDeclarator: SName L_Bracket FormalParameterList_1 R_Bracket ;
+ConstructorBody: LF_Bracket  RF_Bracket 
+               | LF_Bracket ExplicitConstructorInvocation  RF_Bracket 
+                | LF_Bracket  BlockStatement_1 RF_Bracket 
+                | LF_Bracket ExplicitConstructorInvocation BlockStatement_1 RF_Bracket 
+                ;
+ExplicitConstructorInvocation : This_1 L_Bracket ArgumentList_1 R_Bracket Semicolon 
+                              | Super L_Bracket ArgumentList_1 R_Bracket Semicolon ;
+This_1: this_1 {(*$$).value=strdup($1);$1=(*$$).value;};
+Super: super {(*$$).value=strdup($1);$1=(*$$).value;};
+ArgumentList_1 : {$$=NULL;}
+               | ArgumentList ;
+comma_1: {$$=NULL;}
+       | Comma;
+
+InterfaceDeclaration: ClassModifier_1 Interface Identifier InterfaceExtends_1 InterfaceBody;
+Interface : interface {(*$$).value=strdup($1);$1=(*$$).value;};
+InterfaceExtends_1 : {$$=NULL;}
+                   | InterfaceExtends ;
+InterfaceExtends: EXtends InterfaceType
+                 |InterfaceExtends Comma InterfaceType
+                ;
+EXtends : extends {(*$$).value=strdup($1);$1=(*$$).value;};
+InterfaceBody: LF_Bracket InterfaceMemberDeclaration_1 RF_Bracket;
+InterfaceMemberDeclaration_1 : {$$=NULL;}
+                             | InterfaceMemberDeclaration_1 InterfaceMemberDeclaration;
+InterfaceMemberDeclaration: ConstantDeclaration 
+                          | InterfaceMethodDeclaration 
+                         ;
+ConstantDeclaration: FieldDeclaration ;
+InterfaceMethodDeclaration: ClassModifier_1 MethodHeader Semicolon ;
+
+
+ArrayInitializer: LF_Bracket VariableInitializerList_1 comma_1 RF_Bracket ;
+VariableInitializerList_1: VariableInitializer
+                         | VariableInitializerList_1 Comma VariableInitializer;
+Block: LF_Bracket OPEN1 BlockStatement_1 OPEN2 RF_Bracket {$$=$3;} ;
+OPEN1:{stable* sym_ptr = n1_stable();table * t1 = n1_table(sym_ptr,node1);node1 = t1;};
+OPEN2:{node1 = node1->par;};
+BlockStatement_1 : BlockStatement {$$=$1;}
+                 | BlockStatement_1 BlockStatement
+                 ;
+BlockStatement: LocalVariableDeclarationStatement {$$=$1;}
+              | Statement{$$=$1;};
+LocalVariableDeclarationStatement: LocalVariableDeclaration Semicolon {$$=$1;} ;
+LocalVariableDeclaration: Type VariableDeclaratorList {$$=$2;}
+                         ;
+Statement: StatementWithoutTrailingSubstatement {$$=$1;}
+         | LabeledStatement {$$=$1;}
+         | IfThenStatement {$$=$1;}
+         | IfThenElseStatement {$$=$1;}
+         | WhileStatement {$$=$1;}
+         | ForStatement{$$=$1;} ;
+StatementNoShortIf: StatementWithoutTrailingSubstatement  {$$=$1;}
+                  | LabeledStatementNoShortIf {$$=$1;}
+                  | IfThenElseStatementNoShortIf {$$=$1;}
+                  | WhileStatementNoShortIf {$$=$1;}
+                  | ForStatementNoShortIf{$$=$1;};
+StatementWithoutTrailingSubstatement: Block {$$=$1;}
+                                   | EmptyStatement {$$=$1;}
+                                   | ExpressionStatement {$$=$1;}
+                                   |  BreakStatement {$$=$1;}
+                                   | ContinueStatement {$$=$1;}
+                                   | ReturnStatement {$$=$1;}
+                                   | ThrowStatement {$$=$1;}
+                                   | TryStatement{$$=$1;} ;
+EmptyStatement: Semicolon {$$=$1;} ;
+LabeledStatement: Identifier Colon Statement  ;
+Colon: colon {(*$$).value=strdup($1);$1=(*$$).value;}
+LabeledStatementNoShortIf: Identifier Colon StatementNoShortIf  ;
+ExpressionStatement: StatementExpression Semicolon{$$=$1;} ;
+StatementExpression: Assignment {$$=$1;}
+                   | PreIncrementExpression{$$=$1;}
+                    | PreDecrementExpression {$$=$1;}
+                    | PostIncrementExpression {$$=$1;}
+                    | PostDecrementExpression {$$=$1;}
+                    | MethodInvocation {$$=$1;}
+                    | ClassInstanceCreationExpression{$$=$1;};
+IfThenStatement: If_1 L_Bracket Expression R_Bracket IFMARK1 Statement IFMARK2 ;
+If_1: if_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+IfThenElseStatement: If_1 L_Bracket Expression R_Bracket IFMARK1 StatementNoShortIf Else_1 IFMARK3 Statement IFMARK4 ;
+Else_1: else_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+IfThenElseStatementNoShortIf: If_1 L_Bracket Expression R_Bracket IFMARK1 StatementNoShortIf Else_1 IFMARK3 StatementNoShortIf IFMARK4 ;
+IFMARK1:{string str;
+		str.append(to_string(lineno));
+		str.append(",");
+		str.append("ifgoto,=,");
+		string label_1 = get_label();
+		str.append("t"+to_string(num_temp-1)+",1,"+label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",");
+		str.append("goto,");
+		string label_2 = get_label();
+		if_label_1.push(label_2);
+		str.append(label_2+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",");
+		str.append("label,");
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+IFMARK2:{string str;
+		str=to_string(lineno);
+		str.append(",");
+		str.append("label,");
+		string label_3 = if_label_1.top();
+		if_label_1.pop();
+		str.append(label_3+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+IFMARK3:{string str;
+		str=to_string(lineno);
+		str.append(",");
+		str.append("goto,");
+		string label_2 = get_label();
+		if_label_2.push(label_2);
+		str.append(label_2+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		 };
+
+IFMARK4:{string str;
+		str=to_string(lineno);
+		str.append(",");
+		str.append("label,");
+		string label_1 = if_label_2.top();	
+		if_label_2.pop();				
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+
+
+WhileStatement: While_1 WMARK1 L_Bracket Expression R_Bracket WMARK2 Statement WMARK3 ;
+While_1: while_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+WhileStatementNoShortIf: While_1 WMARK1 L_Bracket Expression R_Bracket WMARK2 StatementNoShortIf WMARK3 ;
+WMARK1: {string label_1 = get_label();
+    string str;
+    str.append(to_string(lineno));
+		str.append(",");
+		str.append("label,");
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+WMARK2:{string str;
+		str.append(to_string(lineno));
+		str.append(",");
+		str.append("ifgoto,=,");
+		string label_1 = get_label();
+		str.append("t"+to_string(num_temp-1)+",1,"+label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",");
+		str.append("goto,");
+		string label_2 = get_label();
+		if_label_1.push(label_2);
+		str.append(label_2+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",");
+		str.append("label,");
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+WMARK3:{string str;
+		str=to_string(lineno);
+		str.append(",");
+		str.append("goto,");
+		string label_2 = get_label();
+		if_label_2.push(label_2);
+		str.append(label_2+"\n");
+		three_ac.push_back(str);
+		lineno++;};
+
+
+ForStatement: BasicForStatement {$$=$1;}
+ForStatementNoShortIf: BasicForStatementNoShortIf {$$=$1;}
+BasicForStatement: For_1 FMARK1 L_Bracket ForInit_1 Semicolon FMARK2 Expression_1 Semicolon ForUpdate_1 R_Bracket FMARK3 Statement FMARK4 ;
+FMARK1:{string str;
+		str = to_string(lineno);
+		string for_initlabel = get_label();
+		str.append(",label,"+for_initlabel+"\n");
+		for_label_1.push(for_initlabel);
+		for_label_2.push(for_initlabel);
+		three_ac.push_back(str);
+		lineno++;};
+FMARK2:{for_label_1.pop();
+		for_label_2.pop();
+		string str;
+		str = to_string(lineno);
+		string for_initlabel = get_label();
+		str.append(",label,"+for_initlabel+"\n");
+		for_label_1.push(for_initlabel);
+		for_label_2.push(for_initlabel);
+		three_ac.push_back(str);
+		lineno++;
+
+};
+FMARK3:{string str;
+		str=to_string(lineno);
+		str.append(",");
+		str.append("ifgoto,=,");
+		string label_1 = get_label();
+		str.append("t"+to_string(num_temp-1)+",1,"+label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",goto,");
+		string for_endlabel = get_label();
+		str.append(for_endlabel+"\n");
+		for_label_3.push(for_endlabel);
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",label,");
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",goto,");
+		string for_blocklabel = get_label();
+		str.append(for_blocklabel+"\n");
+		for_label_4.push(for_blocklabel);
+		three_ac.push_back(str);
+		lineno++;
+		
+		str=to_string(lineno);
+		str.append(",label,");
+		string for_postlabel = get_label();
+		str.append(for_postlabel+"\n");
+		for_label_5.push(for_postlabel);
+		three_ac.push_back(str);
+		lineno++;
+};
+FMARK4:{string str;
+		str=to_string(lineno);
+		str.append(",goto,");
+		string label_1 = for_label_1.top();
+		for_label_1.pop();
+		str.append(label_1+"\n");
+		three_ac.push_back(str);
+		lineno++;
+		str=to_string(lineno);
+		str.append(",label,");
+		string for_blocklabel = for_label_4.top();
+		str.append(for_blocklabel+"\n");
+		for_label_4.pop();
+		three_ac.push_back(str);
+		lineno++;};
+
+
+For_1: for_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+ForInit_1: {$$=NULL;}
+         | ForInit ;
+Expression_1 : {$$=NULL;}
+             | Expression ;
+ForUpdate_1 : {$$=NULL;}
+             | ForUpdate ;
+BasicForStatementNoShortIf: For_1 FMARK1 L_Bracket ForInit_1 Semicolon FMARK2 Expression_1 Semicolon ForUpdate_1 R_Bracket FMARK3 StatementNoShortIf FMARK4 ;
+ForInit: StatementExpressionList 
+        | LocalVariableDeclaration;
+ForUpdate: StatementExpressionList ;
+StatementExpressionList: StatementExpression comma_StatementExpression ;
+comma_StatementExpression: {$$=NULL;}
+                         | comma_StatementExpression Comma StatementExpression ;
+BreakStatement: Break_1 Identifier_1 Semicolon {string str = to_string(lineno);
+		str.append(",goto,");
+		str.append(for_label_3.top());
+		str.append("\n");
+		three_ac.push_back(str);
+		lineno++;} ;
+Break_1: break_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+Identifier_1: {$$=NULL;}
+            | Identifier{$$=$1;};
+ContinueStatement: Continue_1 Identifier_1 Semicolon{string str = to_string(lineno);
+		str.append(",goto,");
+		str.append(for_label_2.top());
+		str.append("\n");
+		three_ac.push_back(str);
+		lineno++;} ;
+Continue_1: continue_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+ReturnStatement: Return_1 Semicolon {string str = to_string(lineno);
+		str.append(",exit\n");
+		three_ac.push_back(str);
+		lineno++;
+		$$->value = strdup("");}
+                 |Return_1 Expression Semicolon {string str = to_string(lineno);
+		str.append(",return,");
+		str.append($2->value);
+		str.append("\n");
+		three_ac.push_back(str);
+		lineno++;
+		$$=$2;
+};
+Return_1: return_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+ThrowStatement: Throw_1 Expression Semicolon ;
+Throw_1: throw_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+TryStatement: Try_1 Block Catches 
+           | Try_1 Block Catches_1 Finally;
+Try_1: try_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+Catches_1: {$$=NULL;}
+          | Catches ;
+Catches: CatchClause 
+       | Catches CatchClause ;
+CatchClause: Catch_1 L_Bracket CatchFormalParameter R_Bracket Block  ;
+Catch_1: catch_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+CatchFormalParameter: ClassModifier_1 CatchType VariableDeclaratorId ;
+CatchType: ClassType bitor_ClassType ;
+bitor_ClassType: {$$=NULL;}
+               | bitor_ClassType Bitor_1 ClassType;
+Finally: FInally Block  ;
+FInally: finally {(*$$).value=strdup($1);$1=(*$$).value;}
+
+
+
+Primary: PrimaryNoNewArray {$$=$1;}
+PrimaryNoNewArray: Literal  {$$=$1;}
+                  | This_1 {$$=$1;}
+                  | L_Bracket Expression R_Bracket{$$=$2;}
+                  | ClassInstanceCreationExpression {$$=$1;}
+                  | FieldAccess {$$=$1;}
+                  | ArrayAccess{$$=$1;}
+                  | MethodInvocation {$$=$1;};
+ClassInstanceCreationExpression:  UnqualifiedClassInstanceCreationExpression {$$=$1;}     ;
+UnqualifiedClassInstanceCreationExpression : New_1 TypeName L_Bracket ArgumentList_1 R_Bracket ;
+
+New_1: new_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+FieldAccess: Primary dot Identifier 
+            |  Super dot Identifier 
+            ;
+ArrayAccess:  PrimaryNoNewArray LS_Bracket Expression RS_Bracket 
+            | TypeName LS_Bracket Expression RS_Bracket 
+            ;
+MethodInvocation: TypeName L_Bracket ArgumentList_1 R_Bracket 
+              | TypeName LF_Bracket ArgumentList_1 RF_Bracket 
+              | Primary dot Identifier L_Bracket ArgumentList_1 R_Bracket 
+               | Primary dot Identifier LF_Bracket ArgumentList_1 RF_Bracket 
+               | Super dot Identifier L_Bracket ArgumentList_1 R_Bracket 
+               | Super dot Identifier LF_Bracket ArgumentList_1 RF_Bracket ;
+ArgumentList: Expression {$$=$1;}
+            | ArgumentList Comma Expression{str_arglist = $1->value;
+			str_arglist.append(",");
+			str_arglist.append($3->value);
+			(*$$).value = strdup(str_arglist.c_str());} ;
+
+Expression: ConditionalExpression{$$=$1;}
+                      | Assignment{$$=$1;} ;
+Assignment:LeftHandSide ASsignment Expression{string temp_str = $1->value;
+		vector <string> list_1 = split(temp_str, ',');
+		string str_2 = $3->value;
+		vector <string> list2 = split(str_2, ',');
+		if(list_1.size()!= list2.size()){
+		cout<<"Error : unsimilarity between LHS and RHS"<<endl;
+		}
+		else{
+			string str_op = $2->value;
+			if(str_op=="="){
+				str_op = $2->value;
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+			else {
+				if(str_op=="+="){
+					str_op = "+";
+				}
+				else if(str_op=="*="){
+					str_op = "*";
+				}
+				else if(str_op=="-="){
+					str_op = "-";
+				}
+				else if(str_op=="/="){
+					str_op = "/";
+				}
+				else if(str_op=="%="){
+					str_op = "%";
+				}
+				
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+		
+	
+		}}
+           | LeftHandSide AssignmentOperator Expression{string temp_str = $1->value;
+		vector <string> list_1 = split(temp_str, ',');
+		string str_2 = $3->value;
+		vector <string> list2 = split(str_2, ',');
+		if(list_1.size()!= list2.size()){
+		cout<<"Error : unsimilarity between LHS and RHS"<<endl;
+		}
+		else{
+			string str_op = $2->value;
+			if(str_op=="="){
+				str_op = $2->value;
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+			else {
+				if(str_op=="+="){
+					str_op = "+";
+				}
+				else if(str_op=="*="){
+					str_op = "*";
+				}
+				else if(str_op=="-="){
+					str_op = "-";
+				}
+				else if(str_op=="/="){
+					str_op = "/";
+				}
+				else if(str_op=="%="){
+					str_op = "%";
+				}
+				
+				for(int i=0;i<list_1.size();i++){
+					string str;
+					str.append(to_string(lineno));
+					str.append(",");
+					str.append(str_op);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list_1[i]);
+					str.append(",");
+					str.append(list2[i]);
+					str.append("\n");
+					three_ac.push_back(str);
+					lineno++;
+				}
+			}
+	
+		}};
+LeftHandSide: TypeName{$$=$1;}
+                      | FieldAccess {$$=$1;}
+                       | ArrayAccess{$$=$1;};
+ASsignment :       assignment {(*$$).value=strdup($1); $1 = (*$$).value;};
+AssignmentOperator:  asnmul{(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asndiv {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnmod {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnaddn {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnsub{(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnls{(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnrs {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnurs {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnand {(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnxor{(*$$).value=strdup($1); $1 = (*$$).value;}
+                     | asnor{(*$$).value=strdup($1); $1 = (*$$).value;} ;
+ConditionalExpression: ConditionalOrExpression {$$=$1;}
+                  | ConditionalOrExpression Questionmark Expression Colon ConditionalExpression{$$=$1;} ;
+Questionmark: questionmark {(*$$).value=strdup($1);$1=(*$$).value;}
+ConditionalOrExpression: ConditionalAndExpression{$$=$1;}
+                    | ConditionalOrExpression Or_1 ConditionalAndExpression {string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());};
+Or_1: or_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+ConditionalAndExpression: InclusiveOrExpression {$$=$1;}
+                  | ConditionalAndExpression And_1 InclusiveOrExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+And_1: and_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+InclusiveOrExpression: ExclusiveOrExpression {$$=$1;}
+                 | InclusiveOrExpression Bitor_1 ExclusiveOrExpression {string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Bitor_1: bitor_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+ExclusiveOrExpression: AndExpression{$$=$1;}
+               | ExclusiveOrExpression Bitxor AndExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Bitxor: bitxor {(*$$).value=strdup($1);$1=(*$$).value;}
+AndExpression: EqualityExpression{$$=$1;}
+               | AndExpression Bitand_1 EqualityExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Bitand_1: bitand_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+EqualityExpression: RelationalExpression {$$=$1;}
+                  | EqualityExpression Equals RelationalExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                  | EqualityExpression Notequal RelationalExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Equals: equals {(*$$).value=strdup($1);$1=(*$$).value;}
+Notequal: notequal {(*$$).value=strdup($1);$1=(*$$).value;}
+RelationalExpression: ShiftExpression{$$=$1;}
+                    | RelationalExpression Lessthan ShiftExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                    | RelationalExpression Greaterthan ShiftExpression {string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                    | RelationalExpression Lessequal ShiftExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                    | RelationalExpression Greaterequal ShiftExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                    | RelationalExpression Instanceof ReferenceType{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Lessthan: lessthan {(*$$).value=strdup($1);$1=(*$$).value;}
+Lessequal: lessequal {(*$$).value=strdup($1);$1=(*$$).value;}
+Greaterthan: greaterthan {(*$$).value=strdup($1);$1=(*$$).value;}
+Greaterequal: greaterequal {(*$$).value=strdup($1);$1=(*$$).value;}
+Instanceof: instanceof {(*$$).value=strdup($1);$1=(*$$).value;}
+ShiftExpression: AdditiveExpression{$$=$1;}
+               | ShiftExpression Leftshift AdditiveExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+               | ShiftExpression Rightshift AdditiveExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+               | ShiftExpression Urightshift AdditiveExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Leftshift: leftshift {(*$$).value=strdup($1);$1=(*$$).value;}
+Rightshift: rightshift {(*$$).value=strdup($1);$1=(*$$).value;}
+Urightshift: urightshift {(*$$).value=strdup($1);$1=(*$$).value;}
+AdditiveExpression: MultiplicativeExpression {$$=$1;}
+                  | AdditiveExpression Addn MultiplicativeExpression {string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                  | AdditiveExpression Subt MultiplicativeExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Addn: addn {(*$$).value=strdup($1);$1=(*$$).value;}
+Subt: subt {(*$$).value=strdup($1);$1=(*$$).value;}
+MultiplicativeExpression: UnaryExpression{$$=$1;}
+                        | MultiplicativeExpression Mult UnaryExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                        | MultiplicativeExpression Div_1 UnaryExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+}
+                        | MultiplicativeExpression Modulo UnaryExpression{string temp_var = get_tempvar();
+    string str;
+    str.append(to_string(lineno));
+    str.append(",");
+    str.append($2->value);
+    str.append(",");
+    str.append(temp_var);
+    str.append(",");
+    str.append($1->value);
+    str.append(",");
+    str.append($3->value);
+    str.append("\n");
+    three_ac.push_back(str);
+    lineno++;
+    strcpy((*$$).value,temp_var.c_str());
+};
+Modulo: modulo {(*$$).value=strdup($1);$1=(*$$).value;}
+Div_1: div_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+UnaryExpression: PreIncrementExpression{$$=$1;}
+               | PreDecrementExpression {$$=$1;}
+               | Addn UnaryExpression {string temp_str = "";
+		temp_str.append($1->value);
+		temp_str.append($2->value);
+		(*$$).value=strdup(temp_str.c_str());}
+               | Subt UnaryExpression{string temp_str = "";
+		temp_str.append($1->value);
+		temp_str.append($2->value);
+		(*$$).value=strdup(temp_str.c_str());}
+               | UnaryExpressionNotPlusMinus{$$=$1;};
+PreIncrementExpression: Increment UnaryExpression {string str;
+	str.append(to_string(lineno));
+	str.append(",");
+	str.append("+");
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append("1");
+	str.append("\n");
+	three_ac.push_back(str);
+	lineno++;};
+PreDecrementExpression: Decrement UnaryExpression{string str;
+	str.append(to_string(lineno));
+	str.append(",");
+	str.append("-");
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append("1");
+	str.append("\n");
+	three_ac.push_back(str);
+	lineno++;};
+Increment: increment {(*$$).value=strdup($1);$1=(*$$).value;}
+Decrement: decrement {(*$$).value=strdup($1);$1=(*$$).value;}
+UnaryExpressionNotPlusMinus: PostfixExpression{$$=$1;}
+                           | Bitcomp UnaryExpression 
+                           | Not_1 UnaryExpression 
+                           | CastExpression {$$=$1;};
+Bitcomp: bitcomp {(*$$).value=strdup($1);$1=(*$$).value;}
+Not_1: not_1 {(*$$).value=strdup($1);$1=(*$$).value;}
+PostfixExpression: Primary{$$=$1;}
+                | TypeName {$$=$1;}
+                |  PostIncrementExpression {$$=$1;}
+                |  PostDecrementExpression {$$=$1;} ;
+PostIncrementExpression: PostfixExpression Increment{string str;
+	str.append(to_string(lineno));
+	str.append(",");
+	str.append("+");
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append("1");
+	str.append("\n");
+	three_ac.push_back(str);
+	lineno++;};
+PostDecrementExpression: PostfixExpression Decrement{string str;
+	str.append(to_string(lineno));
+	str.append(",");
+	str.append("-");
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append($1->value);
+	str.append(",");
+	str.append("1");
+	str.append("\n");
+	three_ac.push_back(str);
+	lineno++;};
+CastExpression: L_Bracket PrimitiveType Dims_1 R_Bracket UnaryExpression 
+              | L_Bracket Expression  R_Bracket UnaryExpressionNotPlusMinus 
+              |L_Bracket TypeName Dims R_Bracket UnaryExpressionNotPlusMinus 
+              ;
+
+%%
+
+int main(int argc, char**argv)
+{
+
+   yyin=fopen(argv[1],"r");
+  yyparse();
+  if(is_error==1){
+		exit (EXIT_FAILURE);
+	}
+  fstream threeac_gen;
+  threeac_gen.open("test.3ac",ios_base::out);
+  for(int i=0;i<three_ac.size();i++){
+		threeac_gen << three_ac[i];
+	}
+ 
+  return 0;
+
+}
+void yyerror(char const * message)
+{
+
+    cout<<endl<<message<<" in line : "<<yylineno<<endl;
+}

@@ -1,0 +1,20 @@
+1,label,main
+2,=,n,100
+3,=,res,rec
+4,+,0,"The ",n
+5,+,1,0,"th Fb no is "
+6,+,2,1,res
+7,ret,
+8,label,rec
+9,<=,3,n,1
+10,ifgoto,=,t3,1,0
+11,goto,1
+12,label,0
+13,return,n
+14,goto,2
+15,-,4,n,1
+16,-,5,n,2
+17,+,6,rec,rec
+18,return,6
+19,label,2
+20,ret,

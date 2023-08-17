@@ -1,0 +1,71 @@
+1,label,main
+2,=,a,25
+3,=,b,33
+4,=,c,42
+5,+,0,a,b
+6,=,sum,0
+7,-,1,a,b
+8,=,diff,1
+9,*,2,a,b
+10,=,prod,2
+11,/,3,a,b
+12,=,div,3
+13,%,4,a,c
+14,=,mod,4
+15,==,5,a,b
+16,=,equals,5
+17,!=,6,a,b
+18,=,notEquals,6
+19,>,7,a,b
+20,=,greaterThan,7
+21,<,8,a,b
+22,=,lessThan,8
+23,>=,9,a,b
+24,=,greaterOrEquals,9
+25,<=,10,a,b
+26,=,lessOrEquals,10
+27,>,11,a,b
+28,>,12,a,c
+29,&&,13,11,12
+30,=,and,13
+31,>,14,a,b
+32,<,15,a,c
+33,||,16,14,15
+34,=,or,16
+35,==,17,a,b
+36,=,not,!
+37,&,18,a,b
+38,=,bitwiseAnd,18
+39,|,19,a,b
+40,=,bitwiseOr,19
+41,^,20,a,b
+42,=,bitwiseXor,20
+43,=,bitwiseComplement,~
+44,<<,21,a,1
+45,=,leftShift,21
+46,>>,22,a,1
+47,=,rightShift,22
+48,>>>,23,a,1
+49,=,zeroFillRightShift,23
+50,+,24,"Sum: ",sum
+51,+,25,"Difference: ",diff
+52,+,26,"Product: ",prod
+53,+,27,"Division: ",div
+54,+,28,"Modulus: ",mod
+55,+,29,"Equals: ",equals
+56,+,30,"Not equals: ",notEquals
+57,+,31,"Greater than: ",greaterThan
+58,+,32,"Less than: ",lessThan
+59,+,33,"Greater or equals: ",greaterOrEquals
+60,+,34,"Less or equals: ",lessOrEquals
+61,+,35,"Logical AND: ",and
+62,+,36,"Logical OR: ",or
+63,+,37,"Logical NOT: ",not
+64,+,38,"Bitwise AND: ",bitwiseAnd
+65,+,39,"Bitwise OR: ",bitwiseOr
+66,+,40,"Bitwise XOR: ",bitwiseXor
+67,+,41,"Bitwise complement: ",bitwiseComplement
+68,+,42,"Left shift: ",leftShift
+69,+,43,"Right shift: ",rightShift
+70,+,44,"Zero-fill right shift: ",zeroFillRightShift
+71,ret,

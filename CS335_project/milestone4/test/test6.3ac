@@ -1,0 +1,21 @@
+1,=,name,n
+2,=,age,a
+3,label,setName
+4,=,name,n
+5,ret,
+6,label,getName
+7,return,name
+8,ret,
+9,label,celebBirthday
+10,+,age,age,1
+11,+,0,"Happy bday ",name
+12,+,1,0,"! You are now "
+13,+,2,1,age
+14,+,3,2," years old."
+15,ret,
+16,label,main
+17,=,p,new
+18,+,4,"Name is ",p,getName
+19,+,5,"Age is ",p,age
+20,+,6,"changed name is ",p,getName
+21,ret,

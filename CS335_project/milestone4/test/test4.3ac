@@ -1,0 +1,32 @@
+1,label,main
+2,=,age,18
+3,=,gender,"male"
+4,>=,0,age,18
+5,ifgoto,=,t0,1,0
+6,goto,1
+7,label,0
+8,goto,2
+9,label,2
+10,label,3
+11,=,i,0
+12,label,4
+13,<,1,i,5
+14,+,i,i,1
+15,ifgoto,=,t1,1,5
+16,goto,6
+17,label,5
+18,goto,7
+19,label,8
+20,+,2,"The value of i is ",i
+21,goto,4
+22,label,7
+23,=,j,0
+24,label,9
+25,<,3,j,5
+26,ifgoto,=,t3,1,10
+27,goto,11
+28,label,10
+29,+,4,"The value of j is ",j
+30,+,j,j,1
+31,goto,12
+32,ret,
